@@ -28,18 +28,47 @@ export default function MovieFact({ movieTitle }: { movieTitle: string }) {
     }, []);
 
     return (
-        <div className="bg-gray-800 rounded-xl p-4 flex flex-col gap-3">
-            <p className="text-gray-400 text-sm">Fun Fact about {movieTitle}</p>
-            {isLoading && <p className="text-gray-400 text-sm">Generating fact...</p>}
-            {error && <p className="text-red-400 text-sm">{error}</p>}
-            {fact && <p className="text-white text-sm leading-relaxed">{fact}</p>}
+    <div>
+        <p
+        className="text-[9px] tracking-[0.35em] uppercase text-[#c8922a]/70 mb-2 text-center"
+        style={{ fontFamily: "'Georgia', serif" }}
+        >
+            Did You Know
+        </p>
+        
+        <div
+        className="text-sm leading-relaxed min-h-[3rem]"
+        style={{ fontFamily: "'Georgia', serif" }}
+        >
+            {isLoading && (
+                <p className="text-[#4a3f30] italic tracking-wide animate-pulse">
+                    Consulting the archives...
+                </p>
+            )}
+            
+            {error && (
+                <p className="text-red-400/70 text-xs tracking-wide">{error}</p>
+            )}
+            
+            {fact && !isLoading && (
+                <p className="text-[#9a8060]">{fact}</p>
+            )}
+        </div>
+        
+        <div className="flex justify-center mt-3">
             <button
-                onClick={fetchFact}
-                disabled={isLoading}
-                className="outline text-white"
+            onClick={fetchFact}
+            disabled={isLoading}
+            className="mt-3 text-[10px] tracking-[0.3em] uppercase transition-colors disabled:opacity-30 cursor-pointer"
+            style={{
+                fontFamily: "'Georgia', serif",
+                color: isLoading ? "#4a3f30" : "#c8922a",
+            }}
             >
-                {isLoading ? "Loading..." : "Get New Fact"}
+                {isLoading ? "Loading..." : "↻ Another Fact"}
             </button>
         </div>
+    </div>
   );
+
 }
