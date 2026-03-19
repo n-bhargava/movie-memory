@@ -9,6 +9,8 @@ const groq = new Groq({
 
 const CACHE_WINDOW = 60 * 1000; // 60 seconds
 
+const generationLocks = new Set<string>();
+
 export async function GET() {
     const session = await auth();
 
@@ -24,6 +26,8 @@ export async function GET() {
         return NextResponse.json({ error: "No favorite movie found" }, { status: 404 });
     }
 
+    const lockKey = `${session.user.id}:${movie.id}`;
+
     const recentFact = await prisma.fact.findFirst({
         where: {
             userId: session.user.id,
@@ -38,6 +42,15 @@ export async function GET() {
     if (recentFact) {
         return NextResponse.json({ fact: recentFact.content, cached: true });
     }
+
+    if (generationLocks.has(lockKey)) {
+        return NextResponse.json(
+            { error: "Already generating a fact. Please wait a moment." },
+            { status: 429 }
+        )
+    }
+
+    generationLocks.add(lockKey);
 
     try {
         const completion = await groq.chat.completions.create({
@@ -82,5 +95,7 @@ export async function GET() {
             { error: "Failed to generate fact. Please try again later." },
             { status: 500 }
         );
+    } finally {
+        generationLocks.delete(lockKey);
     }
 } 
